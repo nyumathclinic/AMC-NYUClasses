@@ -66,6 +66,41 @@ sub parse_string {
     return($s);
 }
 
+# Compose the student mark
+#
+# normally this is in the student mark hashref, but we override in
+# in the case of absence
+#
+# returns a number
+sub compose_mark {
+    my ($self,$m) = @_;
+    return ($m->{'abs'} == 1 ? 0 : $m->{'mark'} );
+}
+
+# Compose the student comments
+# 
+# - Congratulate on full marks
+# - Comment "Absent" if absent
+#
+# Other ideas for commnts:
+# - congratulations for full marks
+# - cross-outs
+# - Bad/no ID
+# - ?
+# This may require indicative questions to be coded by grader.
+# returns a string
+sub compose_comments {
+    my ($self,$m) = @_;
+    my @comments = ();
+    if ($m->{'abs'} == 1) {
+        push @comments, "Absent"
+    }
+    if (($m->{'mark'} > 0) && ($m->{'mark'} == $m->{'max'})) {
+        push @comments, "Good job!"
+    }
+    return join "\n\n", @comments;
+}
+
 # copied and mangled from AMC::Export::CSV.pm
 sub export {
     my ($self,$fichier)=@_;
@@ -148,10 +183,9 @@ sub export {
 				  $m->{'student.all'}->{$c});
       }
 
-      push @columns,$self->parse_num($m->{'mark'});
+      push @columns, $self->compose_mark($m);
+      push @columns, $self->compose_comments($m);
 
-      # TODO: Implement absences (mark -> 0, comment -> "Absent")
-      # seems to be an option.
       # For debugging, you can dump anything here.  Just make sure to parse it.
       # push @columns, $self->parse_string(Dumper($m)); # debug
 
