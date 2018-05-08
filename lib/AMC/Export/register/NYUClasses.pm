@@ -22,6 +22,8 @@ package AMC::Export::register::NYUClasses;
 use AMC::Export::register;
 use AMC::Basic;
 
+use Gtk2;
+
 @ISA=("AMC::Export::register");
 
 sub new {
